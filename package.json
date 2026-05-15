@@ -1,5 +1,5 @@
 {
-  "name": "vidyavichar-classroom-q-a-sticky-board",
+  "name": "query-time-classroom-q-a-sticky-board",
   "version": "1.0.0",
   "description": "Initialization: npm init -y\r     Packages: npm install express mongoose cors dotenv",
   "main": "index.js",
@@ -8,13 +8,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Rajkjain03/VidyaVichar-Classroom-Q-A-sticky-board.git"
+    "url": "git+https://github.com/Rajkjain03/Query-Time-Classroom-Q-A-sticky-board.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/Rajkjain03/VidyaVichar-Classroom-Q-A-sticky-board/issues"
+    "url": "https://github.com/Rajkjain03/Query-Time-Classroom-Q-A-sticky-board/issues"
   },
-  "homepage": "https://github.com/Rajkjain03/VidyaVichar-Classroom-Q-A-sticky-board#readme"
+  "homepage": "https://github.com/Rajkjain03/Query-Time-Classroom-Q-A-sticky-board#readme"
 }

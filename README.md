@@ -1,6 +1,6 @@
 # Query Time - MERN Classroom Q&A Platform
 
-VidyaVichar is a full-stack MERN application designed to facilitate Q&A in a classroom setting. It provides distinct interfaces for teachers and students. Teachers can create virtual classrooms, each with a unique join code. Students can use this code to join a class and ask questions, which are visible only to the teacher. This creates an organized and interruption-free learning environment.
+Query Time is a full-stack MERN application designed to facilitate Q&A in a classroom setting. It provides distinct interfaces for teachers and students. Teachers can create virtual classrooms, each with a unique join code. Students can use this code to join a class and ask questions, which are visible only to the teacher. This creates an organized and interruption-free learning environment.
 
 ---
 
@@ -97,7 +97,7 @@ To run this project locally, you will need Node.js and MongoDB installed on your
 
 ## Assumptions
 
-In building the VidyaVichar project, we made several key assumptions to define its scope and functionality.
+In building the Query Time project, we made several key assumptions to define its scope and functionality.
 
 ### Authentication and Roles
 
@@ -137,4 +137,4 @@ In building the VidyaVichar project, we made several key assumptions to define i
 
 ### Git Repo link -
 
-    https://github.com/Rajkjain03/VidyaVichar-Classroom-Q-A-sticky-board
+    https://github.com/Rajkjain03/Query-Time-Classroom-Q-A-sticky-board
