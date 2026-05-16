@@ -1,5 +1,6 @@
 import Question from "../models/questionModel.js";
 import Classroom from "../models/classroomModel.js";
+import { getIo } from "../realtime/socket.js";
 
 // Get questions for a specific classroom (TEACHER ONLY)
 export const getQuestionsForClass = async (req, res) => {
@@ -40,6 +41,9 @@ export const clearQuestionsForClass = async (req, res) => {
     }
 
     await Question.deleteMany({ classroom: req.params.classId });
+    getIo().to(req.params.classId).emit("question:cleared", {
+      classId: req.params.classId,
+    });
     res.json({ message: "All questions for this class have been cleared." });
   } catch (error) {
     res.status(500).json({ message: "Server Error" });
@@ -75,7 +79,16 @@ export const createQuestion = async (req, res) => {
   });
 
   const createdQuestion = await question.save();
-  res.status(201).json(createdQuestion);
+  const populatedQuestion = await Question.findById(
+    createdQuestion._id,
+  ).populate("author", "name");
+
+  getIo().to(classId).emit("question:created", {
+    classId,
+    question: populatedQuestion,
+  });
+
+  res.status(201).json(populatedQuestion);
 };
 
 export const updateQuestionStatus = async (req, res) => {
@@ -90,7 +103,14 @@ export const updateQuestionStatus = async (req, res) => {
   if (question) {
     question.status = status;
     const updatedQuestion = await question.save();
-    res.json(updatedQuestion);
+    const populatedQuestion = await Question.findById(
+      updatedQuestion._id,
+    ).populate("author", "name");
+    getIo().to(question.classroom.toString()).emit("question:status-updated", {
+      classId: question.classroom.toString(),
+      question: populatedQuestion,
+    });
+    res.json(populatedQuestion);
   } else {
     res.status(404).json({ message: "Question not found" });
   }

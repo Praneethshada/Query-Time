@@ -17,6 +17,28 @@ The application follows a standard client-server architecture. The React fronten
 +------------------+                                +------------------+                          +-----------------+
 ```
 
+## Realtime Architecture (Questions)
+
+We use Socket.IO for realtime question updates because it provides reliable WebSocket transport with automatic reconnection, built-in room support, and a simple auth handshake that fits our JWT-based API.
+
+### What happens
+
+- The client connects to the Socket.IO server with the JWT in the `auth` payload.
+- The client joins a classroom room using `classroom:join` with the classroom id.
+- The server emits only question-related events to that classroom room.
+
+### Events (only questions)
+
+- `question:created` - A new question was posted to the class.
+- `question:status-updated` - A teacher updated a question status (answered/important/unanswered).
+- `question:cleared` - All questions in a class were cleared.
+
+### Why this design
+
+- **Room-based fanout** keeps events scoped to one classroom.
+- **JWT auth on connect** keeps realtime channels consistent with REST permissions.
+- **Minimal event set** avoids unnecessary traffic and keeps the system easy to reason about.
+
 ## Design Decisions
 
 Several key decisions were made to shape the application's architecture and user experience:
@@ -123,18 +145,6 @@ In building the Query Time project, we made several key assumptions to define it
 
 - Simple Data Types: The system is designed to handle text-based questions only. There is no functionality for file uploads, images, or rich text formatting.
 
-## Contributors
-
-### Raj k Jain (2025201036)
-
-### Shada Praneeth Reddy (2025204006)
-
-### Qasim Naik (2025201064)
-
-### Thirumalareddy sathvik reddy (2025201020)
-
-### Subhash Dangeti (2025201007)
-
 ### Git Repo link -
 
-    https://github.com/Rajkjain03/Query-Time-Classroom-Q-A-sticky-board
+    https://github.com/Praneethshada/Query-Time
