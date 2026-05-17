@@ -33,7 +33,14 @@ export const initSocket = (httpServer) => {
   io.on("connection", (socket) => {
     socket.on("classroom:join", ({ classId }) => {
       if (!classId) return;
-      socket.join(classId);
+      const teacherRoom = `${classId}:teacher`;
+      const studentRoom = `${classId}:student`;
+
+      if (socket.user?.role === "teacher") {
+        socket.join(teacherRoom);
+      } else {
+        socket.join(studentRoom);
+      }
     });
   });
 
