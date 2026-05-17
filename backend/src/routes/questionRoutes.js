@@ -4,6 +4,7 @@ import {
   createQuestion,
   updateQuestionStatus,
   clearQuestionsForClass,
+  updateQuestionAnswer,
 } from "../controllers/questionController.js";
 import { protect } from "../middleware/authMiddleware.js";
 
@@ -14,6 +15,7 @@ router
   .get(protect, getQuestionsForClass)
   .post(protect, createQuestion);
 router.route("/:questionId/status").patch(protect, updateQuestionStatus);
+router.route("/:questionId/answer").patch(protect, updateQuestionAnswer);
 router.route("/:classId/clear").delete(protect, clearQuestionsForClass);
 
 export default router;

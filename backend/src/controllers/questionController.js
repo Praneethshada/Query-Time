@@ -2,14 +2,56 @@ import Question from "../models/questionModel.js";
 import Classroom from "../models/classroomModel.js";
 import { getIo } from "../realtime/socket.js";
 
-// Get questions for a specific classroom (TEACHER ONLY)
+const isTeacherForClass = (userId, classroom) =>
+  userId.toString() === classroom.teacher.toString();
+
+const isStudentInClass = (userId, classroom) =>
+  classroom.students?.some(
+    (studentId) => studentId.toString() === userId.toString(),
+  );
+
+const toStudentQuestion = (questionDoc) => {
+  const plain = questionDoc.toObject
+    ? questionDoc.toObject()
+    : { ...questionDoc };
+  delete plain.author;
+  return plain;
+};
+
+const emitQuestionEvent = (
+  classId,
+  eventName,
+  teacherQuestion,
+  studentQuestion,
+) => {
+  const io = getIo();
+  io.to(`${classId}:teacher`).emit(eventName, {
+    classId,
+    question: teacherQuestion,
+  });
+  io.to(`${classId}:student`).emit(eventName, {
+    classId,
+    question: studentQuestion,
+  });
+};
+
+const emitClassEvent = (classId, eventName) => {
+  const io = getIo();
+  io.to(`${classId}:teacher`).emit(eventName, { classId });
+  io.to(`${classId}:student`).emit(eventName, { classId });
+};
+
+// Get questions for a specific classroom (teacher sees author, students do not)
 export const getQuestionsForClass = async (req, res) => {
   try {
     const classroom = await Classroom.findById(req.params.classId);
     if (!classroom) {
       return res.status(404).json({ message: "Classroom not found" });
     }
-    if (req.user._id.toString() !== classroom.teacher.toString()) {
+    const isTeacher = isTeacherForClass(req.user._id, classroom);
+    const isStudent = isStudentInClass(req.user._id, classroom);
+
+    if (!isTeacher && !isStudent) {
       return res
         .status(403)
         .json({ message: "Not authorized to view these questions" });
@@ -18,10 +60,18 @@ export const getQuestionsForClass = async (req, res) => {
     const filter = req.query.status ? { status: req.query.status } : {};
     const classroomFilter = { classroom: req.params.classId };
 
-    const questions = await Question.find({ ...filter, ...classroomFilter })
-      .populate("author", "name")
-      .sort({ createdAt: "desc" });
-    res.json(questions);
+    let query = Question.find({ ...filter, ...classroomFilter }).sort({
+      createdAt: "desc",
+    });
+
+    if (isTeacher) {
+      const questions = await query.populate("author", "name");
+      return res.json(questions);
+    }
+
+    const questions = await query;
+    const sanitized = questions.map((question) => toStudentQuestion(question));
+    return res.json(sanitized);
   } catch (error) {
     res.status(500).json({ message: "Server Error" });
   }
@@ -34,16 +84,14 @@ export const clearQuestionsForClass = async (req, res) => {
     if (!classroom) {
       return res.status(404).json({ message: "Classroom not found" });
     }
-    if (req.user._id.toString() !== classroom.teacher.toString()) {
+    if (!isTeacherForClass(req.user._id, classroom)) {
       return res
         .status(403)
         .json({ message: "Not authorized to clear questions" });
     }
 
     await Question.deleteMany({ classroom: req.params.classId });
-    getIo().to(req.params.classId).emit("question:cleared", {
-      classId: req.params.classId,
-    });
+    emitClassEvent(req.params.classId, "question:cleared");
     res.json({ message: "All questions for this class have been cleared." });
   } catch (error) {
     res.status(500).json({ message: "Server Error" });
@@ -53,6 +101,19 @@ export const clearQuestionsForClass = async (req, res) => {
 export const createQuestion = async (req, res) => {
   const { text } = req.body;
   const { classId } = req.params;
+
+  const classroom = await Classroom.findById(classId);
+  if (!classroom) {
+    return res.status(404).json({ message: "Classroom not found" });
+  }
+  const canPost =
+    isTeacherForClass(req.user._id, classroom) ||
+    isStudentInClass(req.user._id, classroom);
+  if (!canPost) {
+    return res
+      .status(403)
+      .json({ message: "Not authorized to post in this class" });
+  }
 
   if (!text || text.trim() === "") {
     return res.status(400).json({ message: "Question text cannot be empty." });
@@ -82,36 +143,83 @@ export const createQuestion = async (req, res) => {
   const populatedQuestion = await Question.findById(
     createdQuestion._id,
   ).populate("author", "name");
+  const studentQuestion = toStudentQuestion(populatedQuestion);
 
-  getIo().to(classId).emit("question:created", {
+  emitQuestionEvent(
     classId,
-    question: populatedQuestion,
-  });
+    "question:created",
+    populatedQuestion,
+    studentQuestion,
+  );
 
-  res.status(201).json(populatedQuestion);
+  const isTeacher = isTeacherForClass(req.user._id, classroom);
+  res.status(201).json(isTeacher ? populatedQuestion : studentQuestion);
 };
 
 export const updateQuestionStatus = async (req, res) => {
   const { status } = req.body;
   const question = await Question.findById(req.params.questionId);
+  if (!question) {
+    return res.status(404).json({ message: "Question not found" });
+  }
   const classroom = await Classroom.findById(question.classroom);
-  if (req.user._id.toString() !== classroom.teacher.toString()) {
+  if (!classroom || !isTeacherForClass(req.user._id, classroom)) {
     return res
       .status(401)
       .json({ message: "Only the teacher can update status" });
   }
-  if (question) {
-    question.status = status;
-    const updatedQuestion = await question.save();
-    const populatedQuestion = await Question.findById(
-      updatedQuestion._id,
-    ).populate("author", "name");
-    getIo().to(question.classroom.toString()).emit("question:status-updated", {
-      classId: question.classroom.toString(),
-      question: populatedQuestion,
-    });
-    res.json(populatedQuestion);
-  } else {
-    res.status(404).json({ message: "Question not found" });
+  question.status = status;
+  const updatedQuestion = await question.save();
+  const populatedQuestion = await Question.findById(
+    updatedQuestion._id,
+  ).populate("author", "name");
+  const studentQuestion = toStudentQuestion(populatedQuestion);
+  const classId = question.classroom.toString();
+
+  emitQuestionEvent(
+    classId,
+    "question:status-updated",
+    populatedQuestion,
+    studentQuestion,
+  );
+  res.json(populatedQuestion);
+};
+
+export const updateQuestionAnswer = async (req, res) => {
+  const { text } = req.body;
+  const question = await Question.findById(req.params.questionId);
+  if (!question) {
+    return res.status(404).json({ message: "Question not found" });
   }
+  const classroom = await Classroom.findById(question.classroom);
+  if (!classroom || !isTeacherForClass(req.user._id, classroom)) {
+    return res
+      .status(401)
+      .json({ message: "Only the teacher can answer questions" });
+  }
+
+  const trimmed = text?.trim();
+  if (trimmed) {
+    question.answer = {
+      text: trimmed,
+      updatedAt: new Date(),
+    };
+  } else {
+    question.answer = null;
+  }
+
+  const updatedQuestion = await question.save();
+  const populatedQuestion = await Question.findById(
+    updatedQuestion._id,
+  ).populate("author", "name");
+  const studentQuestion = toStudentQuestion(populatedQuestion);
+  const classId = question.classroom.toString();
+
+  emitQuestionEvent(
+    classId,
+    "question:answer-updated",
+    populatedQuestion,
+    studentQuestion,
+  );
+  res.json(populatedQuestion);
 };

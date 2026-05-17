@@ -19,9 +19,15 @@ const questionSchema = mongoose.Schema(
       enum: ["unanswered", "answered", "important"],
       default: "unanswered",
     },
+    answer: {
+      text: { type: String },
+      updatedAt: { type: Date },
+    },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
+
+questionSchema.index({ classroom: 1, status: 1, createdAt: -1 });
 
 const Question = mongoose.model("Question", questionSchema);
 export default Question;
