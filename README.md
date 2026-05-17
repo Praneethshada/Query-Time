@@ -4,6 +4,8 @@ Query Time is a full-stack MERN application designed to facilitate Q&A in a clas
 
 ---
 
+<!-- DOCS:START solution-diagram -->
+
 ## Solution Diagram
 
 The application follows a standard client-server architecture. The React frontend communicates with the Express backend via a RESTful API, which in turn interacts with the MongoDB database.
@@ -17,6 +19,10 @@ The application follows a standard client-server architecture. The React fronten
 +------------------+                                +------------------+                          +-----------------+
 ```
 
+<!-- DOCS:END solution-diagram -->
+
+<!-- DOCS:START realtime-architecture -->
+
 ## Realtime Architecture (Questions)
 
 We use Socket.IO for realtime question updates because it provides reliable WebSocket transport with automatic reconnection, built-in room support, and a simple auth handshake that fits our JWT-based API.
@@ -25,19 +31,32 @@ We use Socket.IO for realtime question updates because it provides reliable WebS
 
 - The client connects to the Socket.IO server with the JWT in the `auth` payload.
 - The client joins a classroom room using `classroom:join` with the classroom id.
-- The server emits only question-related events to that classroom room.
+- The server routes connections into role-specific rooms:
+  - `classId:teacher` receives full question data including asker name.
+  - `classId:student` receives sanitized question data without asker name.
 
 ### Events (only questions)
 
 - `question:created` - A new question was posted to the class.
 - `question:status-updated` - A teacher updated a question status (answered/important/unanswered).
+- `question:answer-updated` - A teacher added or updated an optional answer.
 - `question:cleared` - All questions in a class were cleared.
 
 ### Why this design
 
-- **Room-based fanout** keeps events scoped to one classroom.
+- **Room-based fanout** keeps events scoped to one classroom and role.
 - **JWT auth on connect** keeps realtime channels consistent with REST permissions.
+- **Privacy by design** keeps asker identity visible only to the host.
 - **Minimal event set** avoids unnecessary traffic and keeps the system easy to reason about.
+
+## Patterns & Performance Tactics
+
+- **SRP (Single Responsibility)**: question API calls are centralized in a dedicated service module.
+- **Factory**: socket client creation is encapsulated in a `createSocket` factory.
+- **Observer**: Socket.IO events notify clients of question changes in realtime.
+- **Performance**: indexing questions by classroom/status/createdAt improves query speed; role-scoped fanout reduces payload size.
+
+<!-- DOCS:END realtime-architecture -->
 
 ## Design Decisions
 
