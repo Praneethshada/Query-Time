@@ -24,12 +24,21 @@ const ClassroomPage = () => {
   const [submissionMessage, setSubmissionMessage] = useState("");
   const filterRef = useRef(filter);
 
+  const matchesFilter = useCallback((question, activeFilter) => {
+    if (!activeFilter) return true;
+    const isImportant = question.isImportant || question.status === "important";
+    if (activeFilter === "important") return isImportant;
+    if (activeFilter === "answered") return question.status === "answered";
+    if (activeFilter === "unanswered") return question.status !== "answered";
+    return true;
+  }, []);
+
   const fetchQuestionsForClass = useCallback(async () => {
     try {
       const data = await fetchQuestions({
         classId,
         token: user.token,
-        status: user.role === "teacher" ? filter || undefined : undefined,
+        filter: user.role === "teacher" ? filter || undefined : undefined,
       });
       setQuestions(data);
     } catch (err) {
@@ -54,7 +63,7 @@ const ClassroomPage = () => {
     const handleCreated = ({ classId: incomingClassId, question }) => {
       if (incomingClassId !== classId) return;
       const activeFilter = user.role === "teacher" ? filterRef.current : "";
-      if (activeFilter && question.status !== activeFilter) return;
+      if (!matchesFilter(question, activeFilter)) return;
       setQuestions((prev) => [
         question,
         ...prev.filter((q) => q._id !== question._id),
@@ -67,7 +76,7 @@ const ClassroomPage = () => {
       setQuestions((prev) => {
         const index = prev.findIndex((q) => q._id === question._id);
         if (index === -1) return prev;
-        if (activeFilter && question.status !== activeFilter) {
+        if (!matchesFilter(question, activeFilter)) {
           return prev.filter((q) => q._id !== question._id);
         }
         const next = [...prev];
@@ -149,7 +158,7 @@ const ClassroomPage = () => {
       setQuestions((prev) => {
         const index = prev.findIndex((q) => q._id === data._id);
         if (index === -1) return prev;
-        if (activeFilter && data.status !== activeFilter) {
+        if (!matchesFilter(data, activeFilter)) {
           return prev.filter((q) => q._id !== data._id);
         }
         const next = [...prev];
@@ -171,6 +180,10 @@ const ClassroomPage = () => {
       setQuestions((prev) => {
         const index = prev.findIndex((q) => q._id === data._id);
         if (index === -1) return prev;
+        const activeFilter = filterRef.current;
+        if (!matchesFilter(data, activeFilter)) {
+          return prev.filter((q) => q._id !== data._id);
+        }
         const next = [...prev];
         next[index] = data;
         return next;

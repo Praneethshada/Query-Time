@@ -10,10 +10,31 @@ const isStudentInClass = (userId, classroom) =>
     (studentId) => studentId.toString() === userId.toString(),
   );
 
-const toStudentQuestion = (questionDoc) => {
+const normalizeQuestion = (questionDoc) => {
   const plain = questionDoc.toObject
     ? questionDoc.toObject()
     : { ...questionDoc };
+
+  if (plain.status === "important") {
+    plain.status = "unanswered";
+    plain.isImportant = true;
+  }
+
+  if (plain.isImportant === undefined) {
+    plain.isImportant = false;
+  }
+
+  if (plain.status !== "answered") {
+    plain.status = "unanswered";
+  }
+
+  return plain;
+};
+
+const toTeacherQuestion = (questionDoc) => normalizeQuestion(questionDoc);
+
+const toStudentQuestion = (questionDoc) => {
+  const plain = normalizeQuestion(questionDoc);
   delete plain.author;
   return plain;
 };
@@ -57,7 +78,16 @@ export const getQuestionsForClass = async (req, res) => {
         .json({ message: "Not authorized to view these questions" });
     }
 
-    const filter = req.query.status ? { status: req.query.status } : {};
+    const filterValue = req.query.filter || req.query.status || "";
+    let filter = {};
+
+    if (filterValue === "answered") {
+      filter = { status: "answered" };
+    } else if (filterValue === "unanswered") {
+      filter = { status: "unanswered" };
+    } else if (filterValue === "important") {
+      filter = { $or: [{ isImportant: true }, { status: "important" }] };
+    }
     const classroomFilter = { classroom: req.params.classId };
 
     let query = Question.find({ ...filter, ...classroomFilter }).sort({
@@ -66,7 +96,7 @@ export const getQuestionsForClass = async (req, res) => {
 
     if (isTeacher) {
       const questions = await query.populate("author", "name");
-      return res.json(questions);
+      return res.json(questions.map((question) => toTeacherQuestion(question)));
     }
 
     const questions = await query;
@@ -143,17 +173,18 @@ export const createQuestion = async (req, res) => {
   const populatedQuestion = await Question.findById(
     createdQuestion._id,
   ).populate("author", "name");
+  const teacherQuestion = toTeacherQuestion(populatedQuestion);
   const studentQuestion = toStudentQuestion(populatedQuestion);
 
   emitQuestionEvent(
     classId,
     "question:created",
-    populatedQuestion,
+    teacherQuestion,
     studentQuestion,
   );
 
   const isTeacher = isTeacherForClass(req.user._id, classroom);
-  res.status(201).json(isTeacher ? populatedQuestion : studentQuestion);
+  res.status(201).json(isTeacher ? teacherQuestion : studentQuestion);
 };
 
 export const updateQuestionStatus = async (req, res) => {
@@ -162,27 +193,38 @@ export const updateQuestionStatus = async (req, res) => {
   if (!question) {
     return res.status(404).json({ message: "Question not found" });
   }
+  if (question.status === "important") {
+    question.status = "unanswered";
+    question.isImportant = true;
+  }
   const classroom = await Classroom.findById(question.classroom);
   if (!classroom || !isTeacherForClass(req.user._id, classroom)) {
     return res
       .status(401)
       .json({ message: "Only the teacher can update status" });
   }
-  question.status = status;
+  if (status === "important") {
+    question.isImportant = !question.isImportant;
+  } else if (status === "answered") {
+    question.status = "answered";
+  } else {
+    question.status = "unanswered";
+  }
   const updatedQuestion = await question.save();
   const populatedQuestion = await Question.findById(
     updatedQuestion._id,
   ).populate("author", "name");
+  const teacherQuestion = toTeacherQuestion(populatedQuestion);
   const studentQuestion = toStudentQuestion(populatedQuestion);
   const classId = question.classroom.toString();
 
   emitQuestionEvent(
     classId,
     "question:status-updated",
-    populatedQuestion,
+    teacherQuestion,
     studentQuestion,
   );
-  res.json(populatedQuestion);
+  res.json(teacherQuestion);
 };
 
 export const updateQuestionAnswer = async (req, res) => {
@@ -204,22 +246,25 @@ export const updateQuestionAnswer = async (req, res) => {
       text: trimmed,
       updatedAt: new Date(),
     };
+    question.status = "answered";
   } else {
     question.answer = null;
+    question.status = "unanswered";
   }
 
   const updatedQuestion = await question.save();
   const populatedQuestion = await Question.findById(
     updatedQuestion._id,
   ).populate("author", "name");
+  const teacherQuestion = toTeacherQuestion(populatedQuestion);
   const studentQuestion = toStudentQuestion(populatedQuestion);
   const classId = question.classroom.toString();
 
   emitQuestionEvent(
     classId,
     "question:answer-updated",
-    populatedQuestion,
+    teacherQuestion,
     studentQuestion,
   );
-  res.json(populatedQuestion);
+  res.json(teacherQuestion);
 };

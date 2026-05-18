@@ -12,18 +12,26 @@ const QuestionCard = ({
   useEffect(() => {
     setAnswerText(question.answer?.text || "");
   }, [question.answer?.text]);
+  const isImportant = question.isImportant || question.status === "important";
+  const isAnswered = question.status === "answered";
   const cardColor = {
     unanswered: "#fffac8",
     answered: "#c8e6c9",
-    important: "#ffcdd2",
   };
 
   return (
     <div
-      className="question-card"
-      style={{ backgroundColor: cardColor[question.status] }}
+      className={`question-card${isImportant ? " is-important" : ""}`}
+      style={{
+        backgroundColor: cardColor[isAnswered ? "answered" : "unanswered"],
+      }}
     >
       <p className="question-text">{question.text}</p>
+      {isImportant && (
+        <span className="important-badge" aria-label="Important">
+          ! Important
+        </span>
+      )}
       {showAuthor && question.author?.name && (
         <p className="question-author">- {question.author.name}</p>
       )}
@@ -41,7 +49,7 @@ const QuestionCard = ({
             Answered
           </button>
           <button onClick={() => onStatusChange(question._id, "important")}>
-            Important
+            {isImportant ? "Unmark Important" : "Mark Important"}
           </button>
           <button onClick={() => onStatusChange(question._id, "unanswered")}>
             Un-Answer

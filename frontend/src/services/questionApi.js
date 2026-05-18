@@ -7,8 +7,8 @@ const authConfig = (token, params) => ({
   params,
 });
 
-export const fetchQuestions = async ({ classId, token, status }) => {
-  const params = status ? { status } : undefined;
+export const fetchQuestions = async ({ classId, token, filter }) => {
+  const params = filter ? { filter } : undefined;
   const { data } = await axios.get(
     `${API_BASE_URL}/api/questions/${classId}`,
     authConfig(token, params),

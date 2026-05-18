@@ -16,8 +16,13 @@ const questionSchema = mongoose.Schema(
     status: {
       type: String,
       required: true,
-      enum: ["unanswered", "answered", "important"],
+      enum: ["unanswered", "answered"],
       default: "unanswered",
+    },
+    isImportant: {
+      type: Boolean,
+      required: true,
+      default: false,
     },
     answer: {
       text: { type: String },
@@ -27,7 +32,12 @@ const questionSchema = mongoose.Schema(
   { timestamps: true },
 );
 
-questionSchema.index({ classroom: 1, status: 1, createdAt: -1 });
+questionSchema.index({
+  classroom: 1,
+  status: 1,
+  isImportant: 1,
+  createdAt: -1,
+});
 
 const Question = mongoose.model("Question", questionSchema);
 export default Question;
