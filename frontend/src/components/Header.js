@@ -23,6 +23,7 @@ const Header = () => {
           {user ? (
             <>
               <span>Hello, {user.name}</span>
+              <Link to="/profile">Profile</Link>
               <button onClick={onLogout}>Logout</button>
             </>
           ) : (
