@@ -72,6 +72,10 @@ button.clear-btn {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
 }
 
+.question-card.is-important {
+  border: 2px solid #d63384;
+}
+
 .question-text {
   font-size: 1.1rem;
 }
@@ -80,6 +84,16 @@ button.clear-btn {
   font-style: italic;
   color: #555;
   text-align: right;
+}
+
+.important-badge {
+  display: inline-block;
+  margin: 0.5rem 0;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  background-color: #d63384;
+  color: #fff;
+  font-size: 0.85rem;
 }
 
 .instructor-controls {
@@ -104,6 +118,52 @@ button.clear-btn {
 
 .answer-form button {
   background-color: #198754;
+}
+
+.profile-container {
+  max-width: 520px;
+  margin: 0 auto;
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.profile-form label {
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.profile-form input[disabled] {
+  background: #f0f0f0;
+}
+
+.profile-section {
+  margin-top: 1rem;
+}
+
+body[data-theme="dark"] {
+  background-color: #1b1f24;
+  color: #f1f1f1;
+}
+
+body[data-theme="dark"] header {
+  color: #f1f1f1;
+}
+
+body[data-theme="dark"] .question-form,
+body[data-theme="dark"] .filter-controls,
+body[data-theme="dark"] .profile-container {
+  background: #2a2f36;
+  color: #f1f1f1;
+}
+
+body[data-theme="dark"] input,
+body[data-theme="dark"] textarea,
+body[data-theme="dark"] select {
+  background: #1f2328;
+  color: #f1f1f1;
+  border-color: #3a4048;
 }
 
 .classroom-header {
