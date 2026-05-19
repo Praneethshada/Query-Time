@@ -8,6 +8,7 @@ import ClassroomPage from "./pages/ClassroomPage";
 import ProfilePage from "./pages/ProfilePage";
 import PrivateRoute from "./components/PrivateRoute";
 import { selectCurrentUser } from "./features/authSlice";
+import "./App.css";
 
 function App() {
   const user = useSelector(selectCurrentUser);
