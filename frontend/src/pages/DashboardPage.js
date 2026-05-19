@@ -6,6 +6,7 @@ import { selectCurrentUser } from "../features/authSlice";
 
 const DashboardPage = () => {
   const user = useSelector(selectCurrentUser);
+  const apiBaseUrl = process.env.REACT_APP_API_URL || "http://localhost:5000";
   const [classes, setClasses] = useState([]);
   const [className, setClassName] = useState("");
   const [joinCode, setJoinCode] = useState("");
@@ -15,10 +16,7 @@ const DashboardPage = () => {
   const fetchClasses = useCallback(async () => {
     try {
       const config = { headers: { Authorization: `Bearer ${user.token}` } };
-      const { data } = await axios.get(
-        "http://localhost:5000/api/classrooms",
-        config
-      );
+      const { data } = await axios.get(`${apiBaseUrl}/api/classrooms`, config);
       setClasses(data);
     } catch (err) {
       setError("Failed to fetch classes.");
@@ -34,9 +32,9 @@ const DashboardPage = () => {
     try {
       const config = { headers: { Authorization: `Bearer ${user.token}` } };
       await axios.post(
-        "http://localhost:5000/api/classrooms/create",
+        `${apiBaseUrl}/api/classrooms/create`,
         { name: className },
-        config
+        config,
       );
       setClassName("");
       fetchClasses(); // Refresh list
@@ -50,9 +48,9 @@ const DashboardPage = () => {
     try {
       const config = { headers: { Authorization: `Bearer ${user.token}` } };
       await axios.post(
-        "http://localhost:5000/api/classrooms/join",
+        `${apiBaseUrl}/api/classrooms/join`,
         { joinCode },
-        config
+        config,
       );
       setJoinCode("");
       setMessage("Successfully joined class!");

@@ -113,7 +113,7 @@ const ClassroomPage = () => {
       socket.off("question:cleared", handleCleared);
       socket.disconnect();
     };
-  }, [classId, user?.token, user?.role]);
+  }, [classId, user?.token, user?.role, matchesFilter]);
 
   const handleClearAll = async () => {
     if (
