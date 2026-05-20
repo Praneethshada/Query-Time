@@ -89,6 +89,7 @@ Several key decisions were made to shape the application's architecture and user
 - _Redux Toolkit_: For efficient and predictable state management
 - _React Router_: For client-side routing and navigation
 - _Axios_: For making HTTP requests to the backend API
+- _Socket.IO Client_: For realtime question updates
 
 ---
 
@@ -130,11 +131,25 @@ To run this project locally, you will need Node.js and MongoDB installed on your
 
     npm install
 
-3.  Start the frontend development server:
+3.  (Optional) Create a `.env` file in the root of the frontend folder for API endpoints:
+
+    REACT_APP_API_URL=http://localhost:5000
+
+    REACT_APP_SOCKET_URL=http://localhost:5000
+
+4.  Start the frontend development server:
 
     npm start
 
     The React application will open automatically in your browser at http://localhost:3000.
+
+## Testing
+
+The project uses the default Create React App test runner. If you want to run tests in watch mode:
+
+    npm test
+
+Note: If you add new test dependencies that ship ESM-only builds, Jest may require additional mocks or config.
 
 ## Assumptions
 
@@ -160,7 +175,7 @@ In building the Query Time project, we made several key assumptions to define it
 
 ### Technical and UI Scope
 
-- Local Development: We assumed the entire project is being developed and run in a local environment (localhost) and did not account for production deployment complexities like environment variable management for a live server or database.
+- Local Development: We assumed the entire project is being developed and run in a local environment (localhost). For production, you should define `REACT_APP_API_URL` and `REACT_APP_SOCKET_URL` for the frontend.
 
 - Simple Data Types: The system is designed to handle text-based questions only. There is no functionality for file uploads, images, or rich text formatting.
 
