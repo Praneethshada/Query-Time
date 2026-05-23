@@ -107,7 +107,7 @@ To run this project locally, you will need Node.js and MongoDB installed on your
 
     npm install
 
-3.  Create a .env file in the root of the backend folder. Add the following variables, replacing the placeholders with your own values:
+3.  Create a .env file in the root of the backend folder (you can start from `.env.example`). Add the following variables, replacing the placeholders with your own values:
 
     PORT=5000
 
@@ -115,11 +115,18 @@ To run this project locally, you will need Node.js and MongoDB installed on your
 
     JWT_SECRET=your_super_secret_jwt_key
 
+    CLIENT_ORIGIN=http://localhost:3000
+
+    # You can provide multiple origins as a comma-separated list
+
+    NODE_ENV=development
+
 4.  Start the backend server:
 
     npm start
 
     The server should now be running on http://localhost:5000.
+    Health check: http://localhost:5000/health
 
 ### 2. Frontend Client
 
@@ -131,7 +138,7 @@ To run this project locally, you will need Node.js and MongoDB installed on your
 
     npm install
 
-3.  (Optional) Create a `.env` file in the root of the frontend folder for API endpoints:
+3.  (Optional) Create a `.env` file in the root of the frontend folder (you can start from `.env.example`) for API endpoints:
 
     REACT_APP_API_URL=http://localhost:5000
 
@@ -175,7 +182,7 @@ In building the Query Time project, we made several key assumptions to define it
 
 ### Technical and UI Scope
 
-- Local Development: We assumed the entire project is being developed and run in a local environment (localhost). For production, you should define `REACT_APP_API_URL` and `REACT_APP_SOCKET_URL` for the frontend.
+- Local Development: We assumed the entire project is being developed and run in a local environment (localhost). For production, you should define `REACT_APP_API_URL`, `REACT_APP_SOCKET_URL`, and `CLIENT_ORIGIN`.
 
 - Simple Data Types: The system is designed to handle text-based questions only. There is no functionality for file uploads, images, or rich text formatting.
 
