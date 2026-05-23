@@ -1,5 +1,7 @@
 # Query Time - MERN Classroom Q&A Platform
 
+Live site: https://query-time-online.onrender.com/
+
 Query Time is a full-stack MERN application designed to facilitate Q&A in a classroom setting. It provides distinct interfaces for teachers and students. Teachers can create virtual classrooms, each with a unique join code. Students can use this code to join a class and ask questions, which are visible only to the teacher. This creates an organized and interruption-free learning environment.
 
 ---
