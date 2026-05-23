@@ -48,7 +48,9 @@ app.use("/api/questions", questionRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err);
-  res.status(err.status || 500).json({ message: err.message || "Server Error" });
+  res
+    .status(err.status || 500)
+    .json({ message: err.message || "Server Error" });
 });
 
 const PORT = process.env.PORT || 5000;

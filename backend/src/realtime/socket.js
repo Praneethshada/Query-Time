@@ -5,9 +5,18 @@ import User from "../models/userModel.js";
 let io;
 
 export const initSocket = (httpServer) => {
+  const clientOrigins = (process.env.CLIENT_ORIGIN || "http://localhost:3000")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+
   io = new Server(httpServer, {
     cors: {
-      origin: process.env.CLIENT_ORIGIN || "http://localhost:3000",
+      origin: (origin, callback) => {
+        if (!origin) return callback(null, true);
+        if (clientOrigins.includes(origin)) return callback(null, true);
+        return callback(new Error("Not allowed by CORS"));
+      },
       credentials: true,
     },
   });
@@ -17,6 +26,9 @@ export const initSocket = (httpServer) => {
       const token = socket.handshake.auth?.token;
       if (!token) {
         return next(new Error("Not authorized"));
+      }
+      if (!process.env.JWT_SECRET) {
+        return next(new Error("JWT secret missing"));
       }
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       const user = await User.findById(decoded.id).select("-password");
