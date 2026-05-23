@@ -16,7 +16,7 @@ const Header = () => {
   return (
     <header>
       <div className="header-container">
-        <Link to={user ? "/dashboard" : "/auth"}>
+        <Link to={user ? "/dashboard" : "/"}>
           <h1>Query Time</h1>
         </Link>
         <nav>
@@ -42,7 +42,14 @@ const Header = () => {
               <button onClick={onLogout}>Logout</button>
             </>
           ) : (
-            <Link to="/auth">Login</Link>
+            <>
+              <Link to="/auth?mode=login" className="nav-link">
+                Login
+              </Link>
+              <Link to="/auth?mode=register" className="nav-cta">
+                Register
+              </Link>
+            </>
           )}
         </nav>
       </div>

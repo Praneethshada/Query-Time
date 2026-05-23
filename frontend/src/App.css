@@ -522,3 +522,216 @@ header nav button:hover {
 .profile-form button[type="submit"]:hover {
     background-color: var(--primary-hover);
 }
+
+/* --- HEADER NAV LINKS --- */
+.nav-link {
+    color: var(--dark-gray);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.nav-link:hover {
+    color: var(--primary-color);
+}
+
+.nav-cta {
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    background: var(--primary-color);
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+    transition: background-color 0.2s, transform 0.2s;
+}
+
+.nav-cta:hover {
+    background: var(--primary-hover);
+    transform: translateY(-1px);
+}
+
+/* --- LANDING PAGE --- */
+.landing {
+    display: flex;
+    flex-direction: column;
+    gap: 4rem;
+    padding: 2rem 0 4rem;
+}
+
+.landing-hero {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2.5rem;
+    align-items: center;
+    background: linear-gradient(135deg, rgba(79, 70, 229, 0.12), rgba(255, 255, 255, 0));
+    border-radius: 24px;
+    padding: 2.5rem;
+    border: 1px solid var(--medium-gray);
+}
+
+.landing-hero-content h1 {
+    font-size: 3rem;
+    margin: 0.5rem 0 1rem;
+    color: var(--primary-color);
+    animation: fade-up 0.6s ease;
+}
+
+.landing-badge {
+    display: inline-flex;
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    background: var(--surface-color);
+    border: 1px solid var(--medium-gray);
+    font-weight: 600;
+    color: var(--dark-gray);
+    font-size: 0.85rem;
+}
+
+.landing-subtitle {
+    font-size: 1.1rem;
+    color: var(--dark-gray);
+    max-width: 520px;
+    animation: fade-up 0.8s ease;
+}
+
+.landing-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.btn-primary,
+.btn-secondary {
+    padding: 0.85rem 1.6rem;
+    border-radius: 999px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
+}
+
+.btn-primary {
+    background: var(--primary-color);
+    color: #fff;
+    box-shadow: 0 12px 24px -16px rgba(79, 70, 229, 0.6);
+}
+
+.btn-primary:hover {
+    background: var(--primary-hover);
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background: var(--surface-color);
+    border: 1px solid var(--medium-gray);
+    color: var(--dark-gray);
+}
+
+.btn-secondary:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.landing-hero-card {
+    background: var(--surface-color);
+    border-radius: 20px;
+    border: 1px solid var(--medium-gray);
+    box-shadow: var(--card-shadow);
+    padding: 1.5rem;
+    min-height: 260px;
+    animation: float 6s ease-in-out infinite;
+}
+
+.landing-card-top {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-bottom: 1.5rem;
+}
+
+.landing-pill {
+    padding: 0.25rem 0.6rem;
+    border-radius: 999px;
+    background: rgba(79, 70, 229, 0.15);
+    color: var(--primary-color);
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.landing-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--medium-gray);
+}
+
+.landing-card-title {
+    font-weight: 700;
+    margin: 0 0 0.75rem;
+}
+
+.landing-card-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 0.5rem;
+    color: var(--dark-gray);
+}
+
+.landing-steps h2,
+.landing-features h2 {
+    margin-bottom: 1.5rem;
+}
+
+.landing-step-grid,
+.landing-feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+}
+
+.landing-step,
+.landing-feature {
+    background: var(--surface-color);
+    border-radius: 16px;
+    padding: 1.5rem;
+    border: 1px solid var(--medium-gray);
+    box-shadow: var(--card-shadow);
+}
+
+.landing-cta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    padding: 2rem;
+    border-radius: 20px;
+    background: var(--surface-color);
+    border: 1px solid var(--medium-gray);
+    box-shadow: var(--card-shadow);
+}
+
+@keyframes fade-up {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}
